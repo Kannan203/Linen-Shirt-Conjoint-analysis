@@ -984,16 +984,29 @@ def phase_4_tournament() -> None:
             else:
                 row_to_append = [str(row)]
                 
-            # Execute direct API call using standard user entry interpretation
-            worksheet.append_row(row_to_append, value_input_option="USER_ENTERED")
+            # 1. Read existing data to find the true last row
+            all_values = worksheet.get_all_values()
             
-            # Display a confirmation message in the sidebar for debugging purposes
-            st.sidebar.success("Database Sync Status: Success")
+            # If the sheet is totally wiped, fallback to row 2
+            next_free_row = len(all_values) + 1 if all_values else 2
+            
+            # 2. Convert standard numeric index to a Google Sheets column letter (e.g., Column A to column Q for 17 columns)
+            # This dynamically builds a range like 'A2:Q2'
+            num_cols = len(row_to_append)
+            end_col_letter = chr(64 + num_cols) if num_cols <= 26 else "Z" # Safe fallback for standard conjoint widths
+            target_range = f"A{next_free_row}:{end_col_letter}{next_free_row}"
+            
+            # 3. ✅ THE FIX: Force append starting at Column A of that specific row
+            worksheet.update(
+                range_name=target_range, 
+                values=[row_to_append], 
+                value_input_option="USER_ENTERED"
+            )
+            
+            st.sidebar.success(f"Successfully recorded in Row {next_free_row}")
             
         except Exception as sheet_exc:
-            # Displays the exact network or API error in the sidebar if it fails
             st.sidebar.error(f"Google Sheet Export Failed: {str(sheet_exc)}")
-            # Log the error tracking details directly back into your session state
             st.session_state.csv_save_error = f"Google Sheet API Error: {str(sheet_exc)}"
 
         st.session_state.submitted = True
