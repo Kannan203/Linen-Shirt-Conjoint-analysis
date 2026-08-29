@@ -969,6 +969,7 @@ def phase_4_tournament() -> None:
             client = conn.client._client  
             
             #Target your LC Survey Spreadsheet
+            #https://docs.google.com/spreadsheets/d/1oAp7Wn1nwj1zJJFb2pNOouylM3GFVATvYlHb3tTNo7A/edit?pli=1&gid=0#gid=0
             sheet_url = "https://docs.google.com/spreadsheets/d/1oAp7Wn1nwj1zJJFb2pNOouylM3GFVATvYlHb3tTNo7A/edit?gid=0#gid=0"
             spreadsheet = client.open_by_url(sheet_url)
             worksheet = spreadsheet.worksheet("Sheet1")
@@ -988,20 +989,16 @@ def phase_4_tournament() -> None:
             all_values = worksheet.get_all_values()
             
             # If the sheet is totally wiped, fallback to row 2
-            next_free_row = len(all_values) + 1 if all_values else 2
+            next_free_row = len(all_values) + 1 
             
             # 2. Convert standard numeric index to a Google Sheets column letter (e.g., Column A to column Q for 17 columns)
             # This dynamically builds a range like 'A2:Q2'
-            num_cols = len(row_to_append)
-            end_col_letter = chr(64 + num_cols) if num_cols <= 26 else "Z" # Safe fallback for standard conjoint widths
-            target_range = f"A{next_free_row}:{end_col_letter}{next_free_row}"
+            #num_cols = len(row_to_append)
+            #end_col_letter = chr(64 + num_cols) if num_cols <= 26 else "Z" # Safe fallback for standard conjoint widths
+            #target_range = f"A{next_free_row}:{end_col_letter}{next_free_row}"
             
             # 3. ✅ THE FIX: Force append starting at Column A of that specific row
-            worksheet.update(
-                range_name=target_range, 
-                values=[row_to_append], 
-                value_input_option="USER_ENTERED"
-            )
+            worksheet.insert_row(row_to_append, index=next_free_row_index, value_input_option="USER_ENTERED")
             
             st.sidebar.success(f"Successfully recorded in Row {next_free_row}")
             
