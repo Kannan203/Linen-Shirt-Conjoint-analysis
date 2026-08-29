@@ -157,9 +157,9 @@ LEVEL_DESCRIPTIONS: Dict[str, Dict[str, str]] = {
         "Premium Concierge": "Door-to-door support for cleaning, repair, exchange, or returns.",
     },
     "Price": {
-        "€39": "Lowest price point.",
-        "€69": "Mid-range price point.",
-        "€99": "Premium price point.",
+        "€69": "Lowest price point.",
+        "€89": "Mid-range price point.",
+        "€119": "Premium price point.",
     },
 }
 
