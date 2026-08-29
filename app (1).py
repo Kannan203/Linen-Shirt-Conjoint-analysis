@@ -962,31 +962,39 @@ def phase_4_tournament() -> None:
             st.session_state.csv_write_status = "failed"
 
         try:
-            from streamlit_gsheets import GSheetsConnection
-            import pandas as pd
+            st.cache_data.clear()
+            st.cache_resource.clear()
             #Establish background API bridge using your Secrets credentials
             conn = st.connection("gsheets", type=GSheetsConnection)
             client = conn.client._client  
             
             #Target your LC Survey Spreadsheet
-            sheet_url = "https://google.com"
+            sheet_url = "https://docs.google.com/spreadsheets/d/1oAp7Wn1nwj1zJJFb2pNOouylM3GFVATvYlHb3tTNo7A/edit?gid=0#gid=0"
             spreadsheet = client.open_by_url(sheet_url)
             worksheet = spreadsheet.worksheet("Sheet1")
             
-            # Your app's compile_submission_row() creates a dictionary or list. 
-            # We convert it to a standard flat list to append seamlessly as a row.
+            # Robust data formatting block
+            # Maps row content correctly whether compile_submission_row() returns a dict, list, or Series
             if isinstance(row, dict):
-                row_to_append = list(row.values())
+                row_to_append = [str(val) for val in row.values()]
+            elif isinstance(row, (list, tuple)):
+                row_to_append = [str(val) for val in row]
+            elif hasattr(row, 'tolist'): # For numpy/pandas structures
+                row_to_append = [str(val) for val in row.tolist()]
             else:
-                row_to_append = list(row)
+                row_to_append = [str(row)]
                 
-            # Execute atomic write bypass to populate Sheet1
-            worksheet.append_row(row_to_append)
+            # Execute direct API call using standard user entry interpretation
+            worksheet.append_row(row_to_append, value_input_option="USER_ENTERED")
+            
+            # Display a confirmation message in the sidebar for debugging purposes
+            st.sidebar.success("Database Sync Status: Success")
             
         except Exception as sheet_exc:
-            # Silently catch or display sheet errors without breaking the user's completion screen
+            # Displays the exact network or API error in the sidebar if it fails
             st.sidebar.error(f"Google Sheet Export Failed: {str(sheet_exc)}")
-
+            # Log the error tracking details directly back into your session state
+            st.session_state.csv_save_error = f"Google Sheet API Error: {str(sheet_exc)}"
 
         st.session_state.submitted = True
         st.rerun()
