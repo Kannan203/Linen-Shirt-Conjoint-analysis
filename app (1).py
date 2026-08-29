@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import streamlit as st
+import pandas as pd
+from streamlit_gsheets import GSheetsConnection
 
 
 # -----------------------------------------------------------------------------
