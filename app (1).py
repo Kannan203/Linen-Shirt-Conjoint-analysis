@@ -63,7 +63,7 @@ ATTRIBUTES: Dict[str, Dict[str, Any]] = {
     },
     "Price": {
         "key": "price",
-        "levels": ["€39", "€69", "€99"],
+        "levels": ["€69", "€89", "€119"],
     },
 }
 
